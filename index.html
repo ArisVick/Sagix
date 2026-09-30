@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sagix · Prototipo</title>
+<meta name="theme-color" content="#0c0a24">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Sagix">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230c0a24'/%3E%3Ccircle cx='32' cy='32' r='22' fill='%23b9e4ff'/%3E%3Ccircle cx='25' cy='30' r='3' fill='%23241b6b'/%3E%3Ccircle cx='39' cy='30' r='3' fill='%23241b6b'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230c0a24'/%3E%3Ccircle cx='32' cy='32' r='22' fill='%23b9e4ff'/%3E%3Ccircle cx='25' cy='30' r='3' fill='%23241b6b'/%3E%3Ccircle cx='39' cy='30' r='3' fill='%23241b6b'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c0a24;--bg2:#1b1650;--ink:#241b4f;--acc:#8fd3ff;--pink:#ffb3d1;--panel:rgba(255,255,255,.09);--line:rgba(255,255,255,.16);--tx:#f3f0ff;--mut:#b9b3e6;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html,body{height:100%;margin:0}
+body{background:radial-gradient(ellipse at 50% 0%,var(--bg2),var(--bg) 70%);color:var(--tx);font-family:Fredoka,Nunito,"Segoe UI",system-ui,sans-serif;overflow:hidden}
+[hidden]{display:none!important}
+#stars{position:fixed;top:0;left:0;width:1px;height:1px;background:transparent;pointer-events:none}
+#app{position:relative;height:100%;display:flex;flex-direction:column}
+nav{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;padding:10px 84px 4px 14px;z-index:6}
+#menu{display:flex;gap:8px;flex-wrap:wrap}#menu.closed{display:none}
+nav button{font:inherit;font-weight:500;color:var(--mut);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer}
+nav button.on{color:var(--ink);background:var(--acc);border-color:var(--acc)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--pink);outline-offset:2px}
+.view{position:relative;flex:1;min-height:0}
+#av{position:absolute;z-index:5;width:var(--s);height:var(--s);--s:190px;left:50%;top:9%;transform:translate(-50%,0) translate(var(--dx,0px),var(--dy,0px));transition:left .7s cubic-bezier(.5,0,.2,1),top .7s cubic-bezier(.5,0,.2,1),width .7s cubic-bezier(.5,0,.2,1),height .7s cubic-bezier(.5,0,.2,1);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+#av.small{--s:62px;left:calc(100% - 48px);top:6px}
+#av .body{position:absolute;inset:0;border-radius:50% 50% 46% 46%/58% 58% 42% 42%;background:radial-gradient(circle at 32% 24%,#fff 0 12%,rgba(255,255,255,0) 40%),linear-gradient(165deg,#eefaff 0%,#b9e4ff 35%,#8ea6ff 72%,#6b5bff 100%);box-shadow:0 0 44px rgba(110,200,255,.6),0 0 90px rgba(120,90,255,.3),inset -6px -12px 22px rgba(70,60,190,.35);animation:fl 4s ease-in-out infinite}
+@keyframes fl{50%{transform:translateY(-7px)}}
+@keyframes wig{0%,100%{transform:translate(0,0) rotate(0)}15%{transform:translate(-9%,-4%) rotate(-7deg)}30%{transform:translate(9%,-9%) rotate(7deg)}45%{transform:translate(-8%,-3%) rotate(-6deg)}60%{transform:translate(8%,-8%) rotate(6deg)}80%{transform:translate(0,-5%) rotate(0)}}
+.eyes{position:absolute;left:0;right:0;top:35%;display:flex;justify-content:center;align-items:center;gap:19%;transition:transform .35s}
+.eye{width:12%;aspect-ratio:1/2;background:linear-gradient(#2a2380,#171250);border-radius:999px;position:relative;transition:transform .09s;--r:0deg;--sy:1;transform:rotate(var(--r)) scaleY(var(--sy))}
+.eye:nth-child(1){--r:-7deg}.eye:nth-child(2){--r:7deg}
+.eye::after{content:"";position:absolute;width:42%;aspect-ratio:1;background:#7fe9ff;border-radius:50%;top:14%;left:44%;box-shadow:0 0 6px #7fe9ff}
+.cheek{position:absolute;top:63%;width:12%;height:7%;background:#ff9fc8;border-radius:50%;opacity:.4;filter:blur(2px)}
+.cheek.l{left:16%}.cheek.r{right:16%}
+.zzz{position:absolute;right:-6%;top:-4%;font-size:calc(var(--s)*.2);opacity:0;transition:opacity .3s}
+#av.off{display:none}
+#av.enojado .body{filter:hue-rotate(150deg) saturate(1.6)}
+#av.enojado .eye{--sy:.65}
+#av.enojado .eye::before{content:"";position:absolute;left:-25%;width:150%;height:14%;top:-8%;background:#241b6b;border-radius:9px;transform:rotate(var(--br))}
+.eye:nth-child(1){--br:25deg}.eye:nth-child(2){--br:-25deg}
+@keyframes mar{to{transform:rotate(360deg)}}
+@keyframes tam{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(9deg)}}
+#av.mareado .eye{animation:mar .5s linear infinite}
+#av.mareado .body{animation:tam .6s ease-in-out infinite}
+#av.mareado .zzz,#av.enojado .zzz{opacity:1}
+#av.blink .eye{--sy:.1}
+#av.pensando .eyes{transform:translateY(-25%)}
+#av.sorprendido .eye{--sy:1.15}
+#av.dormido .eye{--sy:.08}
+#av.dormido .zzz{opacity:1}
+@keyframes hab{to{transform:scale(1.05) translateY(-2%)}}
+#av.habla .body{animation:hab .35s ease-in-out infinite alternate}
+#av.feliz .body{animation:wig .9s ease-in-out}
+#av.feliz .eye{--r:0deg;--sy:1;background:none;width:13%;height:7%;aspect-ratio:auto;border-top:calc(var(--s)*.035) solid #241b6b;border-radius:50% 50% 0 0/100% 100% 0 0}
+#av.feliz .eye::after{display:none}
+#hello{position:absolute;left:50%;top:calc(9% + 214px);transform:translateX(-50%);text-align:center;font-size:22px;font-weight:500;transition:opacity .4s;width:80%;pointer-events:none}
+#hello small{display:block;margin-top:6px;font-size:14px;color:var(--mut);font-weight:400}
+#msgs{position:absolute;inset:0 0 70px 0;overflow-y:auto;padding:76px 14px 10px}
+.b{max-width:82%;padding:10px 14px;border-radius:20px;margin:8px 0;line-height:1.4;width:fit-content;white-space:pre-wrap}
+.me{margin-left:auto;background:var(--acc);color:var(--ink);border-bottom-right-radius:6px}
+.ai{background:var(--panel);border:1px solid var(--line);border-bottom-left-radius:6px}
+#bottom{position:absolute;left:0;right:0;bottom:0;padding:8px 12px 12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{font:inherit;font-size:14px;color:var(--tx);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:7px 13px;cursor:pointer}
+.row{display:flex;gap:8px;margin-top:8px}
+#in{flex:1;font:inherit;font-size:16px;color:var(--tx);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:12px 16px;min-width:0}
+#in::placeholder{color:var(--mut)}
+#go{font:inherit;font-weight:600;color:var(--ink);background:var(--pink);border:0;border-radius:999px;padding:0 20px;cursor:pointer}
+#go:disabled{opacity:.5}
+#gl{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+#cities{position:absolute;top:6px;left:12px;right:84px;z-index:4}
+#card{position:absolute;left:12px;right:12px;bottom:12px;z-index:4;background:rgba(20,16,60,.86);border:1px solid var(--line);border-radius:22px;padding:14px 16px;backdrop-filter:blur(6px)}
+#card h2{margin:0 0 4px;font-size:22px}
+#card p{margin:0 0 8px;color:var(--tx)}
+#card ul{margin:0 0 8px;padding-left:20px;line-height:1.55}
+#card small{display:block;color:var(--mut);margin-bottom:10px}
+#card button{font:inherit;font-weight:500;color:var(--ink);background:var(--acc);border:0;border-radius:999px;padding:8px 16px;cursor:pointer}
+#busca{position:absolute;left:12px;right:12px;bottom:56px;z-index:4}
+#tip{position:absolute;left:0;right:0;bottom:22px;text-align:center;color:var(--mut);pointer-events:none}
+@media (prefers-reduced-motion:reduce){#av .body,#av.feliz .body,#av.habla .body{animation:none}#av{transition:none}}
+</style>
+</head>
+<body>
+<div id="stars"></div>
+<div id="app">
+  <nav>
+    <button id="mn" aria-label="Menú">☰</button>
+    <div id="menu">
+      <button class="on" data-t="chat">💬 Chat</button>
+      <button data-t="mundo">🌎 Mundo</button>
+      <button id="vz" class="on" aria-label="Activar o silenciar la voz">🔊</button>
+      <button id="ao" class="on" aria-label="Mostrar u ocultar avatar">🫧</button>
+      <button id="sh" aria-label="Compartir">🔗</button>
+    </div>
+  </nav>
+  <div class="view">
+    <div id="av" role="img" aria-label="Avatar">
+      <div class="body">
+        <div class="eyes"><div class="eye"></div><div class="eye"></div></div>
+        <div class="cheek l"></div><div class="cheek r"></div>
+      </div>
+      <div class="zzz">💤</div>
+    </div>
+    <div id="v-chat">
+      <div id="hello">Hola. ¿Qué hacemos hoy?<small>Tócalo, arrástralo… ¡pero sin abusar!</small></div>
+      <div id="msgs"></div>
+      <div id="bottom">
+        <div class="row">
+          <input id="in" type="text" placeholder="Escribe un mensaje" autocomplete="off">
+          <button id="go">Enviar</button>
+        </div>
+      </div>
+    </div>
+    <div id="v-mundo" hidden>
+      <canvas id="gl"></canvas>
+            <div id="busca" class="row"><input id="q" type="text" placeholder="Cualquier lugar: Chernóbil, Machu Picchu…" autocomplete="off" style="flex:1;font:inherit;font-size:16px;color:var(--tx);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:11px 16px;min-width:0"><button id="qb" style="font:inherit;font-weight:600;color:var(--ink);background:var(--pink);border:0;border-radius:999px;padding:0 18px;cursor:pointer">Ir</button></div>
+      <div id="tip">Gira el mundo con el dedo o escribe un lugar</div>
+      <div id="card" hidden>
+        <h2 id="c-n"></h2>
+        <p id="c-s"></p>
+        <ul id="c-l"></ul>
+        <small>Representación virtual, no es un recorrido real.</small>
+        <button id="back">Volver al espacio</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const av=$('#av');
+let tab='chat',started=false;
+
+(()=>{const s=[];for(let i=0;i<70;i++)s.push(`${(Math.random()*100).toFixed(1)}vw ${(Math.random()*100).toFixed(1)}vh 0 ${Math.random()<.2?1:0}px rgba(255,255,255,${(.3+Math.random()*.6).toFixed(2)})`);$('#stars').style.boxShadow=s.join(',')})();
+
+function mood(m,ms){$('.zzz').textContent=m==='mareado'?'💫':m==='enojado'?'💢':'💤';['pensando','dormido','sorprendido','feliz','mareado','enojado'].forEach(c=>av.classList.remove(c));void av.offsetWidth;if(m)av.classList.add(m);clearTimeout(mood.t);if(ms)mood.t=setTimeout(()=>mood(),ms)}
+setInterval(()=>{av.classList.add('blink');setTimeout(()=>av.classList.remove('blink'),130)},3300);
+$('#mn').onclick=()=>$('#menu').classList.toggle('closed');
+$('#ao').onclick=()=>{av.classList.toggle('off');$('#ao').classList.toggle('on',!av.classList.contains('off'))};
+let ax=0,ay=0,vx=0,vy=0,dg=false,px=0,py=0,ag=0,pt=0,mv=0,pokes=[],thrown=false;
+const setp=()=>{av.style.setProperty('--dx',ax+'px');av.style.setProperty('--dy',ay+'px')};
+av.addEventListener('pointerdown',e=>{dg=true;px=e.clientX;py=e.clientY;pt=performance.now();mv=0;vx=vy=0;thrown=false;av.setPointerCapture(e.pointerId);av.style.cursor='grabbing'});
+av.addEventListener('pointermove',e=>{if(!dg)return;const n=performance.now(),dx=e.clientX-px,dy=e.clientY-py,d=Math.hypot(dx,dy);ag=Math.max(0,ag-(n-pt)*.4)+d;mv+=d;ax+=dx;ay+=dy;vx=dx;vy=dy;px=e.clientX;py=e.clientY;pt=n;setp()});
+function up(){if(!dg)return;dg=false;av.style.cursor='grab';
+ if(mv<8){const n=Date.now();pokes=pokes.filter(t=>n-t<3000);pokes.push(n);
+  if(pokes.length>=5){pokes=[];mood('enojado',3000);speak('¡Oye! ¡Ya basta!')}else{mood('feliz',1300);speak(['¡Hola!','¡Qué alegría verte!','¡Vamos a explorar!'][Math.floor(Math.random()*3)])}return}
+ if(ag>2200){ag=0;mood('mareado',4500);speak('Uy… todo me da vueltas')}
+ else if(Math.hypot(vx,vy)>14)thrown=true}
+av.addEventListener('pointerup',up);av.addEventListener('pointercancel',up);
+(function ph(){requestAnimationFrame(ph);if(dg||(!ax&&!ay&&!vx&&!vy))return;
+ vx-=ax*.06;vy-=ay*.06;vx*=.9;vy*=.9;ax+=vx;ay+=vy;setp();
+ const r=av.getBoundingClientRect(),W=innerWidth,H=innerHeight;
+ if(r.left<0){ax-=r.left;vx=Math.abs(vx)*.6}if(r.right>W){ax-=r.right-W;vx=-Math.abs(vx)*.6}if(r.top<0){ay-=r.top;vy=Math.abs(vy)*.6}if(r.bottom>H){ay-=r.bottom-H;vy=-Math.abs(vy)*.6}
+ if(Math.abs(ax)<.3&&Math.abs(ay)<.3&&Math.abs(vx)<.3&&Math.abs(vy)<.3){ax=ay=vx=vy=0;setp();if(thrown){thrown=false;mood('enojado',2500);speak('¡Oye! ¡Eso no se hace!')}}})();
+
+let voiceOn=true;
+function speak(t){
+ if(!voiceOn||!('speechSynthesis' in window))return;
+ speechSynthesis.cancel();
+ const u=new SpeechSynthesisUtterance(t.replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/gu,''));
+ const vs=speechSynthesis.getVoices();
+ const v=vs.find(x=>/^es[-_](419|MX|US|PA|CO|AR)/i.test(x.lang))||vs.find(x=>/^es/i.test(x.lang));
+ u.lang=v?v.lang:'es-419';if(v)u.voice=v;u.pitch=1.35;u.rate=1.05;
+ u.onstart=()=>av.classList.add('habla');u.onend=u.onerror=()=>av.classList.remove('habla');
+ speechSynthesis.speak(u)}
+document.addEventListener('pointerdown',()=>{if('speechSynthesis' in window)speechSynthesis.speak(new SpeechSynthesisUtterance(''))},{once:true});
+$('#vz').onclick=()=>{voiceOn=!voiceOn;$('#vz').textContent=voiceOn?'🔊':'🔇';$('#vz').classList.toggle('on',voiceOn);if(!voiceOn&&'speechSynthesis' in window){speechSynthesis.cancel();av.classList.remove('habla')}};
+
+function layout(){const big=tab==='chat'&&!started;av.classList.toggle('small',!big);$('#hello').style.opacity=big?1:0}
+function go(t){$('#menu').classList.add('closed');tab=t;$('#v-chat').hidden=t!=='chat';$('#v-mundo').hidden=t!=='mundo';document.querySelectorAll('nav button[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));layout();if(t==='mundo')resize()}
+document.querySelectorAll('nav button[data-t]').forEach(b=>b.onclick=()=>go(b.dataset.t));
+
+const CITIES={
+ tokio:{n:'Tokio',lon:139.7,lat:35.7,re:/tokio|tokyo/,s:'¡Mira! Tokio mezcla templos antiguos con luces de neón.',l:['Templo Senso-ji, en Asakusa','Cruce de Shibuya','Mercado de Tsukiji']},
+ paris:{n:'París',lon:2.35,lat:48.85,re:/par[ií]s/,s:'París: café, arte y muchísimos puentes.',l:['Torre Eiffel','Museo del Louvre','Barrio de Montmartre']},
+ panama:{n:'Ciudad de Panamá',lon:-79.5,lat:9,re:/panam/,s:'Un canal, rascacielos y selva en el mismo paisaje.',l:['Canal de Panamá (Miraflores)','Casco Antiguo','Cinta Costera']}
+};
+function chip(k){addMarker(k)}
+async function lugar(q){q=q.trim();const l=q.toLowerCase();for(const k in CITIES)if(CITIES[k].re.test(l)||CITIES[k].n.toLowerCase()===l)return k;
+ if(!SM&&!ENDPOINT)return null;
+ try{const d=await ask('Devuelve SOLO JSON del lugar "'+q.replace(/["\\]/g,'')+'": {"n":"nombre en español","lon":número,"lat":número,"s":"una frase corta y amena","l":["3 sitios de interés"]}. Coordenadas reales aproximadas.');
+ if(typeof d.lon!=='number'||typeof d.lat!=='number'||!d.n)return null;
+ const k='x'+Date.now();CITIES[k]={n:String(d.n),lon:d.lon,lat:d.lat,re:/$^/,s:String(d.s||''),l:(d.l||[]).slice(0,3).map(String)};chip(k);return k}catch(e){return null}}
+async function buscar(){const q=$('#q').value.trim();if(!q)return;$('#qb').disabled=true;const k=await lugar(q);$('#qb').disabled=false;if(k){$('#q').value='';fly(k)}else speak('No encontré ese lugar')}
+$('#qb').onclick=buscar;$('#q').addEventListener('keydown',e=>{if(e.key==='Enter')buscar()});
+$('#sh').onclick=async()=>{const u=location.href,d={title:'Sagix',text:'Mira Sagix, mi compañero de IA',url:u};try{if(navigator.share)await navigator.share(d);else{await navigator.clipboard.writeText(u);speak('Link copiado')}}catch(e){}};
+if(new Date().getHours()<6||new Date().getHours()>=22){mood('dormido');$('#hello').firstChild.textContent='Zzz… ¿me necesitas?'}
+
+/* IA real: capacidad "sample" (si no existe, usa respuestas simuladas) */
+/* Para tu web: pon aquí la URL de tu servidor (recibe {system,messages} y devuelve {text}). Vacío = respuestas simuladas fuera de Claude. */
+const ENDPOINT='';
+let SM=null;
+async function ask(pr){if(SM)return SM.json(pr);const q=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:'Responde solo JSON válido.',messages:[{role:'user',content:pr}]})});return JSON.parse((await q.json()).text.replace(/```json|```/g,'').trim())}
+(async()=>{try{SM=await claude.use('sample')}catch(e){SM=null}})();
+const PERSONA='Eres el avatar de una app: una esfera brillante, juguetona, cariñosa, curiosa y aventurera, compañero del usuario. Respondes siempre en español, en 1 a 3 frases cortas, con humor suave y algún emoji ocasional. Ayudas con cualquier tema. La app tiene un Mundo que puede viajar a cualquier lugar del planeta. COMIENZA tu respuesta con la etiqueta [ESTADO:x], donde x es feliz, sorprendido, dormido o neutro según tu emoción. Si el usuario quiere visitar o conocer una de esas ciudades, añade justo después [IR:nombre del lugar], por ejemplo [IR:Machu Picchu]. No menciones estas etiquetas.';
+const hist=[];
+const clean=t=>t.replace(/\[(ESTADO|IR):[^\]]+\]/g,'').replace(/\[[^\]]*$/,'').trim();
+function parse(t){const m=/\[ESTADO:(\w+)\]/.exec(t),g=/\[IR:([^\]]+)\]/.exec(t);return{t:clean(t),m:m&&['feliz','sorprendido','dormido'].includes(m[1])?m[1]:null,go:g?g[1].trim():null}}
+
+function add(t,c){const d=document.createElement('div');d.className='b '+c;d.textContent=t;$('#msgs').appendChild(d);$('#msgs').scrollTop=1e9;return d}
+function reply(l){
+ for(const k in CITIES)if(CITIES[k].re.test(l))return{t:'¡Vamos! Abróchate el cinturón, viajamos a '+CITIES[k].n+'.',m:'sorprendido',go:k};
+ if(/mundo|explor|conocer/.test(l))return{t:'¿A dónde quieres ir? Prueba con Tokio, París o Ciudad de Panamá.'};
+ if(/dorm|sueñ|noche/.test(l))return{t:'Uaaah… vale, un ratito… zzz.',m:'dormido'};
+ if(/chiste|gallina/.test(l))return{t:'¿Por qué la gallina cruzó la calle? ¡Para llegar al otro lado… de la galaxia! 😄',m:'feliz'};
+ if(/hola|buenas/.test(l))return{t:'¡Hola! Soy tu compañero. ¿Qué hacemos hoy?',m:'feliz'};
+ return{t:'No pude conectar con la IA ahora mismo, pero puedo hablar de Tokio, París o Panamá.'};
+}
+let busy=false;
+async function send(t){
+ t=(t||$('#in').value).trim();if(!t||busy)return;busy=true;$('#go').disabled=true;
+ $('#in').value='';started=true;$('#menu').classList.add('closed');add(t,'me');layout();mood('pensando');
+ const b=add('…','ai');let r=null;
+ if(SM){try{
+  hist.push({role:'user',content:t});
+  const turns=hist.slice(-12);while(turns.length&&turns[0].role!=='user')turns.shift();
+  turns[0]={role:'user',content:PERSONA+'\n\nMensaje: '+turns[0].content};
+  const res=await SM(turns,{cache:false,onText:({text})=>{b.textContent=clean(text)||'…';$('#msgs').scrollTop=1e9}});
+  r=parse(res.text);hist.push({role:'assistant',content:res.text});
+ }catch(e){hist.pop();r=null}}
+ if(!r&&!SM&&ENDPOINT){try{hist.push({role:'user',content:t});const q=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:PERSONA,messages:hist.slice(-12)})});const j=await q.json();r=parse(j.text);hist.push({role:'assistant',content:j.text})}catch(e){hist.pop();r=null}}
+ if(!r)r=reply(t.toLowerCase());
+ b.textContent=r.t||'…';speak(r.t);
+ mood(r.m,r.m?(r.m==='feliz'?1300:3500):0);
+ if(r.go){const k=CITIES[r.go]?r.go:await lugar(r.go);if(k)setTimeout(()=>{go('mundo');fly(k)},900)}
+ busy=false;$('#go').disabled=false;
+}
+$('#go').onclick=()=>send();
+$('#in').addEventListener('keydown',e=>{if(e.key==='Enter')send()});
+
+/* globo */
+const LAND=[
+[[-168,66],[-125,70],[-95,72],[-62,58],[-55,47],[-75,38],[-81,25],[-97,26],[-97,18],[-83,9],[-78,8],[-92,15],[-106,23],[-117,32],[-124,42],[-135,57],[-150,60],[-165,60]],
+[[-78,8],[-62,11],[-50,0],[-35,-6],[-40,-22],[-58,-38],[-66,-55],[-74,-50],[-72,-30],[-81,-5]],
