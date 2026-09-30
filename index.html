@@ -196,7 +196,7 @@ if(new Date().getHours()<6||new Date().getHours()>=22){mood('dormido');$('#hello
 
 /* IA real: capacidad "sample" (si no existe, usa respuestas simuladas) */
 /* Para tu web: pon aquí la URL de tu servidor (recibe {system,messages} y devuelve {text}). Vacío = respuestas simuladas fuera de Claude. */
-const ENDPOINT='';
+const ENDPOINT='https://sagix-api.victorarisrivera.workers.dev';
 let SM=null;
 async function ask(pr){if(SM)return SM.json(pr);const q=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:'Responde solo JSON válido.',messages:[{role:'user',content:pr}]})});return JSON.parse((await q.json()).text.replace(/```json|```/g,'').trim())}
 (async()=>{try{SM=await claude.use('sample')}catch(e){SM=null}})();
