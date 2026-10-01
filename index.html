@@ -218,14 +218,21 @@ async function send(t){
  t=(t||$('#in').value).trim();if(!t||busy)return;busy=true;$('#go').disabled=true;
  $('#in').value='';started=true;$('#menu').classList.add('closed');add(t,'me');layout();mood('pensando');
  const b=add('…','ai');let r=null;
- if(SM){try{
-  hist.push({role:'user',content:t});
-  const turns=hist.slice(-12);while(turns.length&&turns[0].role!=='user')turns.shift();
-  turns[0]={role:'user',content:PERSONA+'\n\nMensaje: '+turns[0].content};
-  const res=await SM(turns,{cache:false,onText:({text})=>{b.textContent=clean(text)||'…';$('#msgs').scrollTop=1e9}});
-  r=parse(res.text);hist.push({role:'assistant',content:res.text});
- }catch(e){hist.pop();r=null}}
- if(!r&&!SM&&ENDPOINT){try{hist.push({role:'user',content:t});const q=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:PERSONA,messages:hist.slice(-12)})});const j=await q.json();r=parse(j.text);hist.push({role:'assistant',content:j.text})}catch(e){hist.pop();r=null}}
+ try{
+  if(ENDPOINT){
+   hist.push({role:'user',content:t});
+   const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),20000);
+   const q=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:PERSONA,messages:hist.slice(-12)}),signal:ctrl.signal});
+   clearTimeout(timer);
+   if(!q.ok)throw new Error('HTTP '+q.status);
+   const j=await q.json();
+   if(!j.text)throw new Error(j.error||'Sin respuesta');
+   r=parse(j.text);hist.push({role:'assistant',content:j.text});
+  }
+ }catch(e){
+  if(hist.length&&hist[hist.length-1].role==='user')hist.pop();
+  r=null;
+ }
  if(!r)r=reply(t.toLowerCase());
  b.textContent=r.t||'…';speak(r.t);
  mood(r.m,r.m?(r.m==='feliz'?1300:3500):0);
