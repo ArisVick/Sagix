@@ -198,8 +198,7 @@ if(new Date().getHours()<6||new Date().getHours()>=22){mood('dormido');$('#hello
 /* Para tu web: pon aquí la URL de tu servidor (recibe {system,messages} y devuelve {text}). Vacío = respuestas simuladas fuera de Claude. */
 const ENDPOINT='https://sagix-api.victorarisrivera.workers.dev';
 let SM=null;
-async function ask(pr){if(SM)return SM.json(pr);const q=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:'Responde solo JSON válido.',messages:[{role:'user',content:pr}]})});return JSON.parse((await q.json()).text.replace(/```json|```/g,'').trim())}
-(async()=>{try{SM=await claude.use('sample')}catch(e){SM=null}})();
+
 const PERSONA='Eres el avatar de una app: una esfera brillante, juguetona, cariñosa, curiosa y aventurera, compañero del usuario. Respondes siempre en español, en 1 a 3 frases cortas, con humor suave y algún emoji ocasional. Ayudas con cualquier tema. La app tiene un Mundo que puede viajar a cualquier lugar del planeta. COMIENZA tu respuesta con la etiqueta [ESTADO:x], donde x es feliz, sorprendido, dormido o neutro según tu emoción. Si el usuario quiere visitar o conocer una de esas ciudades, añade justo después [IR:nombre del lugar], por ejemplo [IR:Machu Picchu]. No menciones estas etiquetas.';
 const hist=[];
 const clean=t=>t.replace(/\[(ESTADO|IR):[^\]]+\]/g,'').replace(/\[[^\]]*$/,'').trim();
